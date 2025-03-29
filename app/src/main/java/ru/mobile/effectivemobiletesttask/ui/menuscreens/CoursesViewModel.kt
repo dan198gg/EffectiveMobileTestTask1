@@ -2,6 +2,7 @@ package ru.mobile.effectivemobiletesttask.ui.menuscreens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
@@ -24,6 +25,7 @@ import ru.mobile.effectivemobiletesttask.ui.loginScreens.LoginsViewModel.Compani
 class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
 
     val searchText = mutableStateOf("")
+    var listLikedCourses: MutableState<MutableList<Course?>> = mutableStateOf(mutableListOf())
     val db = createDb()
     var mutableLiveData: MutableLiveData<CourseData?> = MutableLiveData(CourseData(mutableListOf()))
     var thisCourseAll: SnapshotStateList<Course?> = SnapshotStateList()
@@ -50,25 +52,42 @@ class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
 
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
-            mobileRepository?.getCourses(mutableLiveData)
-        }
-        for (el in mutableLiveData.value?.courses!!.toList()) thisCourseAll.add(el)
-        viewModelScope.launch {
-            mutableLiveData.observeForever({
-                thisCourseAll.clear()
-                for (el in mutableLiveData.value?.courses!!.toList()) thisCourseAll.add(el)
+            viewModelScope.launch {
+                mobileRepository?.getCourses(mutableLiveData)
+                mutableLiveData.observeForever {
+                    thisCourseAll.clear()
+                    for (el in mutableLiveData.value?.courses!!.toList()) thisCourseAll.add(el)
 
 
-                CoroutineScope(Dispatchers.IO).launch {
                     thisCourseLiked.clear()
-                    for (el in mutableLiveData.value?.courses!!.toList()){
-                    if(el?.hasLike == true) {
-                        db.dao.insertNote(CourseEntity(el.id, el.hasLike, el.price, el.publishDate, el.rate, el.startDate,el.text, el.title))
+                    for (el in listLikedCourses.value) thisCourseLiked.add(el)
+                    if (mutableLiveData.value?.courses!!.isNotEmpty()) {
+                        for (el in mutableLiveData.value?.courses!!){
+                            if (el?.hasLike == true){
+                                el.hasLike = false
+                            }
+                        }
+                        for (el in listLikedCourses.value) {
+                            mutableLiveData.value?.courses!![mutableLiveData.value?.courses!!.indexOf(
+                                Course(
+                                    !el?.hasLike!!,
+                                    el.id,
+                                    el.price,
+                                    el.publishDate,
+                                    el.rate,
+                                    el.startDate,
+                                    el.text,
+                                    el.title
+                                )
+                            )]?.hasLike = true
+                        }
                     }
                 }
+                Thread.sleep(1000)
+            }
+                CoroutineScope(Dispatchers.IO).launch {
                     for (el in db.dao.getAllNotes()) {
-                        thisCourseLiked.add(
+                        listLikedCourses.value.add(
                             Course(
                                 el.hasLike,
                                 el.id,
@@ -80,13 +99,26 @@ class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
                                 el.title
                             )
                         )
+
                     }
                 }
-            })
 
 
 
-            Thread.sleep(1000)
-        }
+
+
+
+
+
+
     }
 }
+
+
+
+
+//                    for (el in mutableLiveData.value?.courses!!.toList()){
+//                    if(el?.hasLike == true) {
+//                        db.dao.insertNote(CourseEntity(el.id, el.hasLike, el.price, el.publishDate, el.rate, el.startDate,el.text, el.title))
+//                    }
+//                }
