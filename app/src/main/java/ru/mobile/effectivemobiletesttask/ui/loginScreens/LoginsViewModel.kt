@@ -32,9 +32,7 @@ class LoginsViewModel(val context: Context, val mobileRepossitory: MobileRepossi
          return CheckCorrectEmailAndPass(email.value, password.value).check()
     }
     init {
-        CoroutineScope(Dispatchers.IO).launch {
-            mobileRepossitory.getCourses(mutableLiveData)
-        }
+
     }
 
 }

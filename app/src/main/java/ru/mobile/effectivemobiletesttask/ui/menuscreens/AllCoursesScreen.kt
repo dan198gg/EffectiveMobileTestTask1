@@ -162,17 +162,6 @@ fun AllCoursesScreen(viewModel: CoursesViewModel) {
                                                         it.title
                                                     )
                                                 )
-                                                viewModel.thisCourseLiked.clear()
-                                                for (it in viewModel.db.dao.getAllNotes()){
-                                                    viewModel.thisCourseLiked.add(Course(
-                                                        it.hasLike,it.id,
-                                                        it.price,
-                                                        it.publishDate,
-                                                        it.rate,
-                                                        it.startDate,
-                                                        it.text,
-                                                        it.title))
-                                                }
                                                 colorState.value = Color(0xff12B956)
                                             }else{
                                                 it.hasLike = false

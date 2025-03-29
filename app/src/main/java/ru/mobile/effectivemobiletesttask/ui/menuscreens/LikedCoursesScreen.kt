@@ -115,7 +115,7 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
             }
 
             LazyColumn {
-                items(viewModel.thisCourseLiked) {
+                items(viewModel.thisCourseLiked.toSet().toList()) {
                     var colorState =
                         remember { mutableStateOf(Color.Transparent) }
                     if (it?.hasLike == true) {
@@ -153,8 +153,35 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
                                                 it.text,
                                                 it.title))
                                         }
-                                        viewModel.mutableLiveData.value?.courses!![viewModel.mutableLiveData.value?.courses!!.indexOf(Course(it?.hasLike, it?.id,it?.price, it?.publishDate, it?.rate, it?.startDate, it?.text, it?.title))]?.hasLike = false
-                                        it?.hasLike = false
+                                        try {
+                                            viewModel.mutableLiveData.value?.courses!![viewModel.mutableLiveData.value?.courses!!.indexOf(
+                                                Course(
+                                                    !it?.hasLike!!,
+                                                    it?.id,
+                                                    it?.price,
+                                                    it?.publishDate,
+                                                    it?.rate,
+                                                    it?.startDate,
+                                                    it?.text,
+                                                    it?.title
+                                                )
+                                            )]?.hasLike = false
+                                            it?.hasLike = false
+                                        }catch (e:Exception){
+                                            viewModel.mutableLiveData.value?.courses!![viewModel.mutableLiveData.value?.courses!!.indexOf(
+                                                Course(
+                                                    it?.hasLike,
+                                                    it?.id,
+                                                    it?.price,
+                                                    it?.publishDate,
+                                                    it?.rate,
+                                                    it?.startDate,
+                                                    it?.text,
+                                                    it?.title
+                                                )
+                                            )]?.hasLike = false
+                                            it?.hasLike = false
+                                        }
                                         if (it != null) {
                                             viewModel.db.dao.delete(
                                                 CourseEntity(

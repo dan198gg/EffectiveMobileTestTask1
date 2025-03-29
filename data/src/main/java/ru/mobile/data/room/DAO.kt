@@ -17,4 +17,8 @@ interface DAO {
 
     @Query("SELECT * FROM CourseEntity")
     fun getAllNotes(): List<CourseEntity>
+
+
+    @Query("SELECT * FROM CourseEntity")
+    fun getAllNotesFlow(): Flow<List<CourseEntity>>
 }

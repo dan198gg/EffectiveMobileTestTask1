@@ -1,9 +1,9 @@
 package ru.mobile.domain
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,18 +11,40 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import ru.mobile.data.models.Course
 import ru.mobile.data.models.CourseData
 import ru.mobile.data.repository.MobileRepossitory
 import ru.mobile.data.retrofit.RetrofitSingleton
+import ru.mobile.data.room.CourseEntity
 import ru.mobile.data.room.MainDB
 import ru.mobile.data.sharedpref.SharedPref
 
 class MobileRepositoryImpl(val context: Context): MobileRepossitory {
-    override suspend fun getCourses(mutableLiveData: MutableLiveData<CourseData?>){
+    override suspend fun getCourses(mutableLiveData: MutableLiveData<CourseData?>, db: MainDB, state: MutableState<MutableList<Course?>>) {
         var courses:MutableLiveData<MutableList<CourseData?>?>? = null
         CoroutineScope(Dispatchers.IO).launch {
             RetrofitSingleton.client.getCourses().enqueue(object : Callback<CourseData?> {
+
                 override fun onResponse(p0: Call<CourseData?>, p1: Response<CourseData?>) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        for (el in p1.body()?.courses!!) {
+                            if (el?.hasLike == true) {
+                                db.dao.insertNote(
+                                    CourseEntity(
+                                        el.id,
+                                        el.hasLike,
+                                        el.price,
+                                        el.publishDate,
+                                        el.rate,
+                                        el.startDate,
+                                        el.text,
+                                        el.title
+                                    )
+                                )
+                                Log.i("STATE", state.value.toString())
+                            }
+                        }
+                    }
                     mutableLiveData.value = p1.body()
                     Log.i("COURSES", p1.body().toString())
                     Log.i("MUTABLELIVEDATA", mutableLiveData.value?.courses.toString())

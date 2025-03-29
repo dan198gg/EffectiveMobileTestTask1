@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import ru.mobile.data.models.Course
 import ru.mobile.data.models.CourseData
@@ -21,6 +23,7 @@ import ru.mobile.domain.SortCoursesByDate
 import ru.mobile.domain.SortLikedCourses
 import ru.mobile.effectivemobiletesttask.ui.loginScreens.LoginsViewModel
 import ru.mobile.effectivemobiletesttask.ui.loginScreens.LoginsViewModel.Companion
+import kotlin.time.Duration
 
 class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
 
@@ -52,56 +55,58 @@ class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
 
 
     init {
+
+        CoroutineScope(Dispatchers.IO).launch {
+            db.dao.getAllNotesFlow().collect{
+                data->
+                thisCourseLiked.clear()
+                for (el in data) {
+                    thisCourseLiked.add(Course(
+                        el.hasLike,
+                        el.id,
+                        el.price,
+                        el.publishDate,
+                        el.rate,
+                        el.startDate,
+                        el.text,
+                        el.title
+                    ))
+                }
+            }
+        }
+
+
+        CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.IO).launch {
+                mobileRepository?.getCourses(mutableLiveData, db, listLikedCourses)
+
+                for (el in db.dao.getAllNotes()) {
+                    listLikedCourses.value.add(
+                        Course(
+                            el.hasLike,
+                            el.id,
+                            el.price,
+                            el.publishDate,
+                            el.rate,
+                            el.startDate,
+                            el.text,
+                            el.title
+                        )
+                    )
+
+                }
+            }
             viewModelScope.launch {
-                mobileRepository?.getCourses(mutableLiveData)
+
                 mutableLiveData.observeForever {
                     thisCourseAll.clear()
                     for (el in mutableLiveData.value?.courses!!.toList()) thisCourseAll.add(el)
-
-
-                    thisCourseLiked.clear()
-                    for (el in listLikedCourses.value) thisCourseLiked.add(el)
-                    if (mutableLiveData.value?.courses!!.isNotEmpty()) {
-                        for (el in mutableLiveData.value?.courses!!){
-                            if (el?.hasLike == true){
-                                el.hasLike = false
-                            }
-                        }
-                        for (el in listLikedCourses.value) {
-                            mutableLiveData.value?.courses!![mutableLiveData.value?.courses!!.indexOf(
-                                Course(
-                                    !el?.hasLike!!,
-                                    el.id,
-                                    el.price,
-                                    el.publishDate,
-                                    el.rate,
-                                    el.startDate,
-                                    el.text,
-                                    el.title
-                                )
-                            )]?.hasLike = true
-                        }
-                    }
                 }
-                Thread.sleep(1000)
-            }
-                CoroutineScope(Dispatchers.IO).launch {
-                    for (el in db.dao.getAllNotes()) {
-                        listLikedCourses.value.add(
-                            Course(
-                                el.hasLike,
-                                el.id,
-                                el.price,
-                                el.publishDate,
-                                el.rate,
-                                el.startDate,
-                                el.text,
-                                el.title
-                            )
-                        )
-
-                    }
                 }
+                }
+
+
+
 
 
 
