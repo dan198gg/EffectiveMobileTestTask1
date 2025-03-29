@@ -1,5 +1,6 @@
 package ru.mobile.effectivemobiletesttask.ui.loginScreens
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,16 +31,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import dev.chrisbanes.haze.HazeState
+import org.koin.android.ext.android.get
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import ru.mobile.data.sharedpref.SharedPref
+import ru.mobile.effectivemobiletesttask.ui.menuscreens.MenuActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        lateinit var viewModel: LoginsViewModel
         setContent {
-            viewModel = LoginsViewModel()
+            val viewModel: LoginsViewModel by viewModel()
+            if (viewModel.sharedPreferences.getString(SharedPref.FLAG, "")=="1"){
+                this.startActivity(Intent(this, MenuActivity::class.java))
+
+            }
             val navHostController = rememberNavController()
             NavHostLogin(navHostController, viewModel)
         }

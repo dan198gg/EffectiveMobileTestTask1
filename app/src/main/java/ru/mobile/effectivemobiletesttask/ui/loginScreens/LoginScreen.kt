@@ -115,6 +115,7 @@ fun LoginScreen(viewModel: LoginsViewModel) {
             Button(
                 onClick = {
                     if (viewModel.check()){
+                        viewModel.saveName()
                         ctx.startActivity(Intent(ctx, MenuActivity::class.java))
                     }
 
