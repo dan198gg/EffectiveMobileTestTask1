@@ -95,11 +95,33 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
             }
             Row(
                 modifier = Modifier.height(32.dp).align(Alignment.End).clickable {
-                    viewModel.thisCourseLiked.clear()
-                    viewModel.mutableLiveData = viewModel.sortByDate(viewModel.mutableLiveData)
-                    for (el in viewModel.mutableLiveData.value?.courses!!){
-                        if (el?.hasLike == true) {
-                            viewModel.thisCourseLiked.add(el)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        viewModel.thisCourseLiked.clear()
+                        viewModel.mutableLiveData = viewModel.sortByDate(viewModel.mutableLiveData)
+                        for (it in viewModel.mutableLiveData.value?.courses!!) {
+                            if (CourseEntity(
+                                    it?.id,
+                                    it?.hasLike,
+                                    it?.price,
+                                    it?.publishDate,
+                                    it?.rate,
+                                    it?.startDate,
+                                    it?.text,
+                                    it?.title
+                                ) in viewModel.db.dao.getAllNotes() ||
+                                CourseEntity(
+                                    it?.id,
+                                    !it?.hasLike!!,
+                                    it?.price,
+                                    it?.publishDate,
+                                    it?.rate,
+                                    it?.startDate,
+                                    it?.text,
+                                    it?.title
+                                ) in viewModel.db.dao.getAllNotes()
+                            ) {
+                                viewModel.thisCourseLiked.add(it)
+                            }
                         }
                     }
                 },
@@ -117,7 +139,7 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
             LazyColumn {
                 items(viewModel.thisCourseLiked.toSet().toList()) {
                     var colorState =
-                        remember { mutableStateOf(Color.Transparent) }
+                        remember { mutableStateOf(Color(0xff12b956)) }
                     if (it?.hasLike == true) {
                         colorState.value = Color(0xff12B956)
                     }else{
@@ -212,6 +234,7 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
                                             viewModel.thisCourseAll.add(el)
                                         }
                                     }
+
                                 }){
                                     Image(
                                         imageVector =  Icons.Outlined.FavoriteBorder,
@@ -283,7 +306,7 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
                                         )
                                     ) {
                                         Text(
-                                            it?.price.toString(),
+                                            "${it?.price.toString()} ₽",
                                             modifier = Modifier.align(Alignment.Bottom)
                                                 .padding(5.dp),
                                             color = Color.White,

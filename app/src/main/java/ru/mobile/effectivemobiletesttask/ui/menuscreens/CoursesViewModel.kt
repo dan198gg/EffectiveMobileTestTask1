@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,7 +33,7 @@ class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
     val db = createDb()
     var mutableLiveData: MutableLiveData<CourseData?> = MutableLiveData(CourseData(mutableListOf()))
     var thisCourseAll: SnapshotStateList<Course?> = SnapshotStateList()
-    var thisCourseLiked: SnapshotStateList<Course?> = SnapshotStateList()
+    var thisCourseLiked: SnapshotStateSet<Course?> = SnapshotStateSet()
 
     var likedCourses = mutableLiveData.value?.courses?.takeWhile { it?.hasLike == true }?.toMutableList()
     @RequiresApi(Build.VERSION_CODES.O)
@@ -59,7 +60,7 @@ class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             db.dao.getAllNotesFlow().collect{
                 data->
-                thisCourseLiked.clear()
+                thisCourseLiked
                 for (el in data) {
                     thisCourseLiked.add(Course(
                         el.hasLike,
@@ -77,25 +78,8 @@ class CoursesViewModel(val mobileRepository: MobileRepossitory?):ViewModel() {
 
 
         CoroutineScope(Dispatchers.IO).launch {
-            CoroutineScope(Dispatchers.IO).launch {
-                mobileRepository?.getCourses(mutableLiveData, db, listLikedCourses)
+                mobileRepository?.getCourses(mutableLiveData, db, listLikedCourses, thisCourseLiked)
 
-                for (el in db.dao.getAllNotes()) {
-                    listLikedCourses.value.add(
-                        Course(
-                            el.hasLike,
-                            el.id,
-                            el.price,
-                            el.publishDate,
-                            el.rate,
-                            el.startDate,
-                            el.text,
-                            el.title
-                        )
-                    )
-
-                }
-            }
             viewModelScope.launch {
 
                 mutableLiveData.observeForever {

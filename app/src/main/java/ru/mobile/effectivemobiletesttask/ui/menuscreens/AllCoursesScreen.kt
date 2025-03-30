@@ -262,7 +262,7 @@ fun AllCoursesScreen(viewModel: CoursesViewModel) {
                                             )
                                         ) {
                                             Text(
-                                                it?.price.toString(),
+                                                "${it?.price.toString()} ₽",
                                                 modifier = Modifier.align(Alignment.Bottom)
                                                     .padding(5.dp),
                                                 color = Color.White,
