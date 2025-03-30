@@ -1,60 +1,39 @@
 package ru.mobile.effectivemobiletesttask.ui.loginScreens
 
 import android.content.Intent
-import android.graphics.drawable.shapes.Shape
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.mobile.effectivemobiletesttask.R
 import ru.mobile.effectivemobiletesttask.ui.menuscreens.MenuActivity
-import kotlin.math.round
-
 
 
 @Composable
@@ -64,6 +43,7 @@ fun LoginScreen(viewModel: LoginsViewModel) {
     val urlOK = "https://ok.ru/"
     val config = LocalConfiguration.current
     val heightScreen = config.screenHeightDp
+    val sateEmail = remember { mutableStateOf("example@gmail.com") }
     val widthScreen = config.screenWidthDp
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         Column(
@@ -78,8 +58,12 @@ fun LoginScreen(viewModel: LoginsViewModel) {
                 modifier = Modifier.padding(vertical = (5.dp)).align(Alignment.Start), color = Color.White
             )
             TextField(
+
                 value = viewModel.email.value,
-                onValueChange = { viewModel.email.value = it },
+                onValueChange = {
+                    if (it.isNotEmpty()) sateEmail.value = ""
+                    else sateEmail.value = "example@gmail.com"
+                    viewModel.email.value = it },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color(0xff32333A),
                     focusedIndicatorColor = Color.Transparent,
@@ -90,7 +74,7 @@ fun LoginScreen(viewModel: LoginsViewModel) {
                 ),
                 modifier = Modifier.padding(vertical = 3.dp).height(45.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(30.dp),
-                label = { Text("example@gmail.com")}
+                label = { Text(sateEmail.value)}
             )
             Text(
                 "Пароль",
@@ -148,7 +132,7 @@ fun LoginScreen(viewModel: LoginsViewModel) {
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xff2683ED)),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Image(painterResource(R.drawable.img), "", Modifier.height(20.dp).width(30.dp))
+                    Image(painterResource(R.drawable.wk_image), "", Modifier.height(20.dp).width(30.dp))
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Button(
@@ -163,7 +147,7 @@ fun LoginScreen(viewModel: LoginsViewModel) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Image(
-                        painterResource(R.drawable.img_1),
+                        painterResource(R.drawable.ok_image),
                         "",
                         Modifier.height(20.dp).width(30.dp)
                     )

@@ -32,12 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -90,8 +87,8 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
                     onClick = {},
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xff32333A)),
-                    modifier = Modifier.fillMaxHeight().weight(1f)
-                ) { Image(painterResource(R.drawable.img_2), "Фильтр") }
+                    modifier = Modifier.fillMaxHeight()
+                ) { Image(painterResource(R.drawable.filter_image), "Фильтр") }
             }
             Row(
                 modifier = Modifier.height(32.dp).align(Alignment.End).clickable {
@@ -130,7 +127,7 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
                 Text("По дате добавления", color = Color(0xff12B956))
                 Spacer(modifier = Modifier.width(3.dp))
                 Image(
-                    painterResource(R.drawable.img_3),
+                    painterResource(R.drawable.updown_image),
                     "",
                     modifier = Modifier.fillMaxHeight()
                 )
@@ -255,7 +252,7 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
                                             modifier = Modifier
                                         ) {
                                             Image(
-                                                painterResource(R.drawable.img_5),
+                                                painterResource(R.drawable.star_image),
                                                 "",
                                                 modifier = Modifier.weight(1f)
                                             )
@@ -319,7 +316,7 @@ fun LikedCoursesScreen(modifier: Modifier = Modifier, viewModel: CoursesViewMode
                                             color = Color(0xff12B956)
                                         )
                                         Image(
-                                            painterResource(R.drawable.img_7),
+                                            painterResource(R.drawable.arrow_img),
                                             "",
                                             modifier = Modifier.padding(end = 5.dp).weight(1f)
                                         )

@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
             val viewModel: LoginsViewModel by viewModel()
             if (viewModel.sharedPreferences.getString(SharedPref.FLAG, "")=="1"){
                 this.startActivity(Intent(this, MenuActivity::class.java))
-
+                finish()
             }
             val navHostController = rememberNavController()
             NavHostLogin(navHostController, viewModel)
